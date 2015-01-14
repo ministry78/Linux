@@ -1,0 +1,32 @@
+#cloud-config
+ 
+hostname: myhost
+ 
+coreos:  
+  etcd:    
+    addr: $private_ipv4:4001
+    peer-addr: $private_ipv4:7001
+  units:
+    - name: etcd.service
+      command: start
+    - name: fleet.service
+      command: start
+    - name: static.network
+      content: |
+        [Match]
+        Name=eno1
+ 
+        [Network]
+        Address=10.0.1.31/16
+        Gateway=10.0.1.1
+        DNS=114.114.114.114
+users:  
+  - name: core
+    ssh-authorized-keys: 
+      - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAv1OLWdHFrUpCpi6zi9qCTi0z8Fv0FyTW6UbUha7ZnailKlTSDlCWHo25asNdAL65P3HrYoVKVtp4+GJPebrahnZ2g4YTtQWLY15JYJascB2ybA6zqAINaptOSJD7Ko2H7wC3nas8e4Jz0PwikEEUTXHc2hs6c+i0vxqZsK8mgx7m86f8w7BwfARQdy5kkAct/kkRCfP7iWx4aly5aZHLKCK/ZxU0XF1BCJGdQSFV2vy6J9fl6+8NVDXwUj/zF6DeTpyr2QXKwx3Pek7jjpXfKPj5XDzV10hZieBBMJtf4ReB2YUayvgIe2KVuuVwKfl5d52uLJN+JWYokJzyUX7e9Q== 10.0.1.92
+	  - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAqPMOd8r2qTY6sL+9GPFNG4ImlGWKqE6tI3ph6H8lzjV/DTGMBtcWlEmt1WEsxIX4oJffVVIziZYc2cyKW2Vv2emGYVThWcQ7DPfLiTL94TwwLhDeoZKuC/AUHMhbEC4sm/w+TBIf8PrVRrkJB3Uy9MJ85GuQQ0BsAUi2y7f6y/U=
+  - name: wsylib
+	passwd:$1$CDwWoVM/$AIEBMzvGguNmdfpWpnOgX1
+  - groups:
+      - sudo
+      - docker

@@ -1,0 +1,8 @@
+#Dockerfile
+FROM centos-newssh
+MAINTAINER feedao <feedao@163.com>
+RUN yum -y install docker-registry
+RUN echo -e "#!/bin/sh\nservice docker-registry start\n/usr/sbin/sshd -D">/etc/init.d/apps.sh
+RUN chmod u+x /etc/init.d/apps.sh
+CMD /etc/init.d/apps.sh
+

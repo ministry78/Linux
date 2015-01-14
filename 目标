@@ -1,0 +1,12 @@
+coreos
+docker
+docker-gitlab
+deis  开源的 PaaS 系统，简化和 LXC 容器和 Chef 节点的发布和伸缩。可用于托管应用、数据库、中间件和其他服务
+bosun-monitor/bosun
+cadvisor	容器性能分析工具
+Shipyard  基于 Web 的 Docker 管理工具
+seagull	Web监控页面
+docker-registry
+kubernetes	Google开源的容器集群管理系统
+https://github.com/sameersbn/docker-gitlab	可以参考他做的dockerfile
+把我们图书馆现在要用的nginx 、mysql、phpfpm、监控、smb、gitlab、备份、osssec(入侵)全部切换到docker平台上面来

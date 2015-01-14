@@ -1,0 +1,54 @@
+https://registry.hub.docker.com/search?q=registry&searchfield=
+https://registry.hub.docker.com/search?q=registry&s=stars
+https://registry.hub.docker.com/search?q=%s&s=downloads
+docker pull registry	#https://registry.hub.docker.com/_/registry/
+# 官网
+docker run -p 5000:5000 registry
+or
+docker run \
+         -e SETTINGS_FLAVOR=s3 \							#亚马逊（如不放在亚马逊上就不要）
+         -e AWS_BUCKET=acme-docker \						#亚马逊（如不放在亚马逊上就不要）
+         -e AWS_KEY=AKIAHSHB43HS3J92MXZ \					#亚马逊（如不放在亚马逊上就不要）
+         -e AWS_SECRET=xdDowwlK7TJajV1Y7EoOZrmuPEJlHYcNP2k4j49T \  #亚马逊（如不放在亚马逊上就不要）
+         -e STORAGE_PATH=/registry \						 #可改registry容器内地址，默认在/tmp/registry	
+ 		 -e DOCKER_REGISTRY_CONFIG=/registry-conf/config.yml #可用本地的配置文件
+         -e SEARCH_BACKEND=sqlalchemy \
+         -p 5000:5000 \
+         registry
+#根据需要自己连通本地仓库和配置文件夹
+docker run -d -p 5000:5000 -v /home/wsylib/registry:/tmp/registry -v /home/wsylib/registry-conf:/registry-conf --name registry registry
+#使用仓库的网页界面，前提先安装registry
+#e REG1=http://自己的registry的IP:端口/v1
+docker run -d -p 8080:8080 -e REG1=http://10.0.14.2:5000/v1/ -v /home/wsylib/registry-ui:/var/lib/h2 atcol/docker-registry-ui
+
+#registry ssh 
+#参考https://github.com/lightning-li/docker-nginx-auth-registry
+# 宿主机上
+#语法htpasswd -b[cmBdpsDv] [-C cost] passwordfile username password
+htpasswd -b -c -d docker-registry.htpasswd wsylib 89641551
+# 做好https自签名证书
+mkdir -p /home/wsylib/nginx-auth/auth
+cd /home/wsylib/nginx-auth/auth
+echo 01 > ca.srl
+openssl genrsa -des3 -out ca-key.pem 2048
+openssl req -new -x509 -days 3650 -key ca-key.pem -out ca.pem
+
+openssl genrsa -des3 -out server-key.pem 2048
+openssl req -new -key server-key.pem -out server.csr
+openssl x509 -req -days 3650 -in server.csr -CA ca.pem -CAkey ca-key.pem -out server-cert.pem
+openssl rsa -in server-key.pem -out server-key.pem
+
+cd ..auth
+git clone https://github.com/lightning-li/docker-nginx-auth-registry.git
+cp ./auth/* ./docker-nginx-auth-registry/nginx-auth
+cd ./docker-nginx-auth-registry
+docker build -t="authnginx:v1" .
+docker run -t -d --name authN -p 443:443 -p 82:80 -v /home/wsylib/nginx:/auth --link registry:registry authnginx:v1
+docker run -t -d --name authN -p 443:443 -p 82:80 -v /home/wsylib/nginx:/auth --link registry:registry 10.0.14.2:5000/library/ubuntu:14.04
+
+/usr/local/nginx/conf/nginx.conf
+/usr/local/nginx/conf/docker-registry.htpasswd
+htpasswd -c docker-registry.htpasswd dmj
+htpasswd docker-registry.htpasswd userN
+
+
